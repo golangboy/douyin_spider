@@ -1,6 +1,7 @@
 import asyncio
 import time
 
+import requests
 from pyppeteer import launch
 
 
@@ -22,8 +23,16 @@ async def main():
             time.sleep(3)
             print(title)
             # 执行js:document.getElementsByTagName("video").length
-            video_length = await page.evaluate('document.getElementsByTagName("video")[0].children[2].src')
-            print(video_length)
+            video_url = await page.evaluate('document.getElementsByTagName("video")[0].children[2].src')
+            # video_url是视频链接，格式是mp4
+            # http get实现下载
+            # 当前时间日期生成文件名
+            file_name = time.strftime("%Y%m%d%H%M%S", time.localtime())
+            file_name = file_name + '.mp4'
+            r = requests.get(video_url)
+            with open("video/" + file_name, 'wb') as f:
+                f.write(r.content)
+
             time.sleep(3)
             await page.reload()
         except Exception as e:
